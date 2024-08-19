@@ -10,6 +10,7 @@ module.exports.createUser = (req, res) => {
                 name: newUser.name,
                 lastName: newUser.lastName,
                 email: newUser.email,
+                password: newUser.password,
             }
 
             jwt.sign(infoEnToken, clave, {expiresIn: '5m'}, (error, token) => {
