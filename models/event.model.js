@@ -10,10 +10,15 @@ const eventSchema  = mongoose.Schema({
     required: [true, 'La descripción del evento es requerida'],
     minlength: [5, 'Debe contener al menos 5 caracteres']
   },
-  date:{ // El manejo de la fecha puede variar dependiendo del uso de un calendario a partir de una libreria
-    type: Date, 
+  start:{
+    type: String, 
     required: [true, 'La fecha del evento es requerida']
   },
+  end:{ 
+    type: String, 
+    required: [true, 'La fecha del evento es requerida']
+  },
+  
   address:{
     type: String, 
     required: [true, 'La dirección del evento es requerida']
@@ -26,6 +31,10 @@ const eventSchema  = mongoose.Schema({
     type: String, 
     required: [true, 'La restriccion del evento es requerida']
   },
+  price: { 
+    type: String,
+    required: [true, 'El precio es requerido']
+  },
   access:{
     type: String, 
     required: [true, 'Debes definir el tipo de acceso del evento']
@@ -33,7 +42,10 @@ const eventSchema  = mongoose.Schema({
   phoneContact: { 
     type: String,
     required: [true, 'El numero de contacto es requerido']
-  }
+  },
+  imageUrl: { 
+    type: String 
+  },
 }, { timestamps: true });
 
 const Events = mongoose.model('events', eventSchema)
