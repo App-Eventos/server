@@ -10,15 +10,14 @@ const eventSchema  = mongoose.Schema({
     required: [true, 'La descripción del evento es requerida'],
     minlength: [5, 'Debe contener al menos 5 caracteres']
   },
-  start:{
-    type: String, 
-    required: [true, 'La fecha del evento es requerida']
+  start: {
+    type: Date,
+    required: true,
   },
-  end:{ 
-    type: String, 
-    required: [true, 'La fecha del evento es requerida']
+  end: {
+    type: Date,
+    required: true,
   },
-  
   address:{
     type: String, 
     required: [true, 'La dirección del evento es requerida']
@@ -46,7 +45,11 @@ const eventSchema  = mongoose.Schema({
   imageUrl: { 
     type: String 
   },
-}, { timestamps: true });
+  votes: {
+    type: Number,
+    default: 0, 
+  },
+});
 
 const Events = mongoose.model('events', eventSchema)
 

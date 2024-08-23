@@ -15,7 +15,7 @@ const Events = require('../models/event.model');
 module.exports.createEvent = (req, res) => { 
   const eventData = {
     ...req.body,
-    image: req.file ? req.file.filename : null,  // Guardar el nombre del archivo
+    imageUrl: req.file ? req.file.filename : null,
   };
 
   Events.create(eventData)
@@ -38,6 +38,18 @@ module.exports.getAllEvents  = (req, res) =>{
     });
 };
 
+//Obtener evento por ID
+module.exports.getEventId  = (req, res) =>{
+
+  Events.findOne({_id: req.params.id})
+    .then((eventId) => {
+      return res.status(200).json(eventId);
+      })
+    .catch((error) => {
+      return res.status(400).json({ message: "Error al obtener el evento", error });
+    });
+};
+
 //Eliminar evento
 module.exports.deleteEvent = (req, res) =>{
   Events.findOneAndDelete({_id: req.params.id}) 
@@ -53,7 +65,7 @@ module.exports.deleteEvent = (req, res) =>{
 module.exports.updateEvent = (req, res) =>{
   const updateData = {
     ...req.body,
-    image: req.file ? req.file.filename : req.body.image,  // Actualizar la imagen si se carga una nueva
+    imageUrl: req.file ? req.file.filename : req.body.image, 
   };
 
   Events.findByIdAndUpdate({_id: req.params.id}, updateData, {new: true, runValidators: true})
@@ -64,4 +76,21 @@ module.exports.updateEvent = (req, res) =>{
       res.statusMessage = error;
       return res.status(400).json({ message: "Error al editar el evento", error });
     })
+};
+
+// En el controlador
+module.exports.voteForEvent = (req, res) => {
+  const eventId = req.params.id;
+  
+  Events.findByIdAndUpdate(
+    eventId,
+    { $inc: { votes: 1 } },
+    { new: true }
+  )
+  .then((updatedEvent) => {
+    return res.status(200).json(updatedEvent);
+  })
+  .catch((error) => {
+    return res.status(400).json({ message: "Error al votar por el evento", error });
+  });
 };
