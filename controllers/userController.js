@@ -58,7 +58,7 @@ module.exports.login = (req, res) => {
                 if(error){
                     return res.status(400).json({message: 'Error al generar el token'});
                 }
-                return res.status(200).json({token});
+                return res.status(200).json({token, userFound});
             });
         })
         .catch((error) => {
