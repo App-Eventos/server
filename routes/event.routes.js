@@ -2,10 +2,10 @@ const express = require('express');
 const eventController = require('../controllers/event.controller');
 const eventRouter = express.Router();
 const upload = require('../uploadConfig/uploadConfig');
-const authenticate = require('../middlewares/validateToken');
+const validateToken = require('../middlewares/validateToken');
 
 // eventRouter.post('/new', eventController.createEvent);
-eventRouter.post('/new', upload.single('image'), authenticate, eventController.createEvent);
+eventRouter.post('/new', upload.single('image'), validateToken, eventController.createEvent);
 eventRouter.get('/list', eventController.getAllEvents);
 eventRouter.get('/:id', eventController.getEventId);
 eventRouter.delete('/delete/:id', eventController.deleteEvent);

@@ -4,7 +4,7 @@ const Events = require('../models/event.model');
 module.exports.createEvent = (req, res) => { 
   const eventData = {
     ...req.body,
-    imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
+    imageUrl: req.file ? `${req.file.filename}` : null, 
   };
 
   Events.create(eventData)
