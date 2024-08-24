@@ -49,7 +49,7 @@ const eventSchema  = mongoose.Schema({
     type: Number,
     default: 0, 
   },
-});
+}, { timestamps: true });
 
 const Events = mongoose.model('events', eventSchema)
 

@@ -1,21 +1,10 @@
 const Events = require('../models/event.model'); 
 
-//Añadir nuevo evento
-// module.exports.createEvent  = (req, res) =>{ 
-//   Events.create(req.body) 
-//     .then((newEvent) => {
-//       return res.status(201).json(newEvent);
-//     })
-//     .catch((error) => {
-//       res.statusMessage = error;
-//       return res.status(400).json({ message: "Error al crear el evento", error });
-//     });
-// };
-
+//Crear un nuevo evento
 module.exports.createEvent = (req, res) => { 
   const eventData = {
     ...req.body,
-    imageUrl: req.file ? req.file.filename : null,
+    imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
   };
 
   Events.create(eventData)
