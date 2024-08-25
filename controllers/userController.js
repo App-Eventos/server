@@ -54,7 +54,7 @@ module.exports.login = (req, res) => {
                 email: userFound.email
             }
 
-            jwt.sign(infoInToken, clave, {expiresIn: '5m'}, (error, token) => {
+            jwt.sign(infoInToken, clave, {expiresIn: '45m'}, (error, token) => {
                 if(error){
                     return res.status(400).json({message: 'Error al generar el token'});
                 }
