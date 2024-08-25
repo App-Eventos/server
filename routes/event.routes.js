@@ -5,7 +5,7 @@ const upload = require('../uploadConfig/uploadConfig');
 const validateToken = require('../middlewares/validateToken');
 
 // eventRouter.post('/new', eventController.createEvent);
-eventRouter.post('/new', upload.single('image'), validateToken, eventController.createEvent);
+eventRouter.post('/new', validateToken, upload.single('image'), eventController.createEvent);
 eventRouter.get('/list', eventController.getAllEvents);
 eventRouter.get('/:id', eventController.getEventId);
 eventRouter.delete('/delete/:id', eventController.deleteEvent);
