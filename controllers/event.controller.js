@@ -67,19 +67,51 @@ module.exports.updateEvent = (req, res) =>{
     })
 };
 
-// En el controlador
+// // Guardar el voto
+// module.exports.voteForEvent = (req, res) => {
+//   const eventId = req.params.id;
+//   const {userId} = req.body;
+
+//   console.log(userId)
+  
+//   Events.findByIdAndUpdate(
+//     eventId,
+//     { $inc: { votes: 1 } }, //para incrementar en un 1 
+//     { new: true }
+//   )
+//   .then((updatedEvent) => {
+//     return res.status(200).json(updatedEvent);
+//   })
+//   .catch((error) => {
+//     return res.status(400).json({ message: "Error al votar por el evento", error });
+//   });
+// };
+
 module.exports.voteForEvent = (req, res) => {
   const eventId = req.params.id;
-  
-  Events.findByIdAndUpdate(
-    eventId,
-    { $inc: { votes: 1 } },
-    { new: true }
-  )
-  .then((updatedEvent) => {
-    return res.status(200).json(updatedEvent);
-  })
-  .catch((error) => {
-    return res.status(400).json({ message: "Error al votar por el evento", error });
-  });
+  const { userId } = req.body;
+
+  Events.findById(eventId)
+    .then(event => {
+      if (!event) {
+        return res.status(404).json({ message: 'Evento no encontrado' });
+      }
+
+      if (event.voters.includes(userId)) {
+        return res.status(400).json({ message: 'Ya has votado por este evento' });
+      }
+
+      return Events.findByIdAndUpdate(
+        eventId,
+        { $inc: { votes: 1 }, $push: { voters: userId } },
+        { new: true }
+      )
+      .then(updatedEvent => {
+        res.status(200).json(updatedEvent);
+      })
+      .catch(error => {
+        console.error('Error al votar por el evento:', error);
+        res.status(400).json({ message: 'Error al votar por el evento', error });
+      });
+    })
 };
