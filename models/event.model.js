@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const userRegister = require('./userModel')
 
 const eventSchema  = mongoose.Schema({
   title: {
@@ -45,10 +46,19 @@ const eventSchema  = mongoose.Schema({
   imageUrl: { 
     type: String 
   },
+  status: {
+    type: String,
+    default: 'activo', 
+  },
   votes: {
     type: Number,
     default: 0, 
   },
+  voters:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'userRegister'
+  } 
+  ]
 }, { timestamps: true });
 
 const Events = mongoose.model('events', eventSchema)
