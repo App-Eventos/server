@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const userRegister = require('./userModel')
 
 const eventSchema  = mongoose.Schema({
   title: {
@@ -49,6 +48,11 @@ const eventSchema  = mongoose.Schema({
   status: {
     type: String,
     default: 'activo', 
+  },
+  createdBy: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'userRegister',
+    required: true 
   },
   votes: {
     type: Number,
