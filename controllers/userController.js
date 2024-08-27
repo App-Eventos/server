@@ -7,13 +7,14 @@ module.exports.createUser = (req, res) => {
     UserRegistration.create(req.body)
         .then((newUser) => {
             const infoEnToken = {
+                _id: userFound._id,
                 name: newUser.name,
                 lastName: newUser.lastName,
                 email: newUser.email,
                 password: newUser.password,
             }
 
-            jwt.sign(infoEnToken, clave, {expiresIn: '5m'}, (error, token) => {
+            jwt.sign(infoEnToken, clave, {expiresIn: '45m'}, (error, token) => {
                 if(error){
                     return res.status(400).json({message: 'Error al generar el token'});
                 }
@@ -49,6 +50,7 @@ module.exports.login = (req, res) => {
             }
             
             const infoInToken = {
+                _id: userFound._id,
                 name: userFound.name,
                 lastName: userFound.lastName,
                 email: userFound.email
@@ -65,6 +67,70 @@ module.exports.login = (req, res) => {
             return res.status(400).json(error);
         });
 }
+
+// logica para agregar a favoritos
+module.exports.addToFavorites = (req, res) => {
+    const { eventId } = req.body;
+    
+    UserRegistration.findById(req.infoUser._id) // Usar el ID del usuario desde el token
+    .then(user => {
+      if (!user) {
+        return res.status(404).json({ message: "Usuario no encontrado." });
+      }
+
+      if (user.favorites.includes(eventId)) {
+        return res.status(400).json({ message: "El evento ya está en la lista de favoritos." });
+      }
+
+      user.favorites.push(eventId);
+      return user.save();
+    })
+    .then(() => {
+      res.status(200).json({ message: "Evento agregado a favoritos." });
+    })
+    .catch((error) => {
+      res.status(400).json({ message: "Error al agregar a favoritos", error });
+    });
+  };
+  
+  // logica para obtener favoritos
+module.exports.getFavorites = (req, res) => {
+    UserRegistration.findById(req.infoUser._id)
+      .populate('favorites') // Para obtener los detalles de los eventos
+      .then(user => {
+        if (!user) return res.status(404).json({ message: "Usuario no encontrado." });
+        res.status(200).json(user.favorites);
+      })
+      .catch((error) => {
+        return res.status(400).json({ message: "Error al obtener favoritos", error });
+      });
+  };
+  
+// Lógica para eliminar de favoritos
+module.exports.removeFromFavorites = (req, res) => {
+    const { eventId } = req.params; // El ID del evento que se eliminará de favoritos
+
+    UserRegistration.findById(req.infoUser._id) // Usar el ID del usuario desde el token
+    .then(user => {
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado." });
+        }
+
+        const index = user.favorites.indexOf(eventId);
+        if (index === -1) {
+            return res.status(400).json({ message: "El evento no está en la lista de favoritos." });
+        }
+
+        user.favorites.splice(index, 1); // Eliminar el evento de la lista de favoritos
+        return user.save();
+    })
+    .then(() => {
+        res.status(200).json({ message: "Evento eliminado de favoritos." });
+    })
+    .catch((error) => {
+        res.status(400).json({ message: "Error al eliminar de favoritos", error });
+    });
+};
 
 
 

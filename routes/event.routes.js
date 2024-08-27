@@ -11,6 +11,9 @@ eventRouter.get('/:id', eventController.getEventId);
 eventRouter.delete('/delete/:id', eventController.deleteEvent);
 eventRouter.put('/edit/:id', eventController.updateEvent);
 eventRouter.put('/vote/:id', eventController.voteForEvent);
+// Rutas de eventos de usuario
+//eventRouter.get('/user-events', validateToken, eventController.getUserCreatedEvents);
+
 
 
 

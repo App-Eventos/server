@@ -9,6 +9,7 @@ const validateToken = (req, res, next) => {
             return res.status(401).json({message: "No autorizado para ver este contenido."});
         }
         req.infoUser = {
+             _id: decoded._id, 
             name: decoded.name,
             lastName: decoded.lastName,
             email: decoded.email

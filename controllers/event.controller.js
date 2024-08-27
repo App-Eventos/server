@@ -1,19 +1,29 @@
 const Events = require('../models/event.model'); 
+const UserRegistration = require('../models/userModel')
 
 //Crear un nuevo evento
 module.exports.createEvent = (req, res) => { 
   const eventData = {
     ...req.body,
     imageUrl: req.file ? `${req.file.filename}` : null, 
+    createdBy: req.infoUser._id // Establece el creador del evento
   };
 
   Events.create(eventData)
     .then((newEvent) => {
-      return res.status(201).json(newEvent);
-    })
-    .catch((error) => {
-      return res.status(400).json({ message: "Error al crear el evento", error });
-    });
+             // Agregar el ID del evento creado al array de createdEvents del usuario
+             return UserRegistration.findByIdAndUpdate(
+              req.infoUser._id,
+              { $push: { createdEvents: newEvent._id } },
+              { new: true }
+          );
+      })
+      .then(() => {
+          return res.status(201).json({ message: "Evento creado y agregado a tu lista de eventos." });
+      })
+      .catch((error) => {
+          return res.status(400).json({ message: "Error al crear el evento", error });
+      });
 };
 
 // Obtener todos los eventos 
@@ -83,3 +93,17 @@ module.exports.voteForEvent = (req, res) => {
     return res.status(400).json({ message: "Error al votar por el evento", error });
   });
 };
+
+
+// // Controlador para obtener eventos creados por el usuario
+// module.exports.getUserCreatedEvents = (req, res) => {
+//   UserRegistration.findById(req.infoUser._id)
+//       .populate('createdEvents') // Para obtener los detalles de los eventos creados
+//       .then(user => {
+//           if (!user) return res.status(404).json({ message: "Usuario no encontrado." });
+//           res.status(200).json(user.createdEvents);
+//       })
+//       .catch((error) => {
+//           return res.status(400).json({ message: "Error al obtener eventos creados", error });
+//       });
+// };
