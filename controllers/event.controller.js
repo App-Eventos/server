@@ -1,4 +1,5 @@
 const Events = require('../models/event.model'); 
+const UserRegistration = require('./../models/userModel')
 
 //Crear un nuevo evento
 module.exports.createEvent = (req, res) => { 
@@ -8,6 +9,16 @@ module.exports.createEvent = (req, res) => {
   };
 
   Events.create(eventData)
+    .then((newEvent) => {
+      // Agregar el ID del evento creado al array de createdEvents del usuario
+      const userId = req.body.createdBy
+      console.log(userId)
+      return UserRegistration.findByIdAndUpdate(
+        userId,
+        { $push: { createdEvents: newEvent._id } },
+        { new: true }
+      );
+    })
     .then((newEvent) => {
       return res.status(201).json(newEvent);
     })
@@ -52,10 +63,15 @@ module.exports.deleteEvent = (req, res) =>{
 
 //Actualizar evento
 module.exports.updateEvent = (req, res) =>{
+  
+  console.log('req.body:', req.body); 
+  console.log('req.file:', req.file);
+  
   const updateData = {
     ...req.body,
-    imageUrl: req.file ? req.file.filename : req.body.image, 
+    imageUrl: req.file ? `${req.file.filename}` : null,
   };
+  console.log(updateData)
 
   Events.findByIdAndUpdate({_id: req.params.id}, updateData, {new: true, runValidators: true})
     .then((updatedEvent)=>{
@@ -68,25 +84,6 @@ module.exports.updateEvent = (req, res) =>{
 };
 
 // // Guardar el voto
-// module.exports.voteForEvent = (req, res) => {
-//   const eventId = req.params.id;
-//   const {userId} = req.body;
-
-//   console.log(userId)
-  
-//   Events.findByIdAndUpdate(
-//     eventId,
-//     { $inc: { votes: 1 } }, //para incrementar en un 1 
-//     { new: true }
-//   )
-//   .then((updatedEvent) => {
-//     return res.status(200).json(updatedEvent);
-//   })
-//   .catch((error) => {
-//     return res.status(400).json({ message: "Error al votar por el evento", error });
-//   });
-// };
-
 module.exports.voteForEvent = (req, res) => {
   const eventId = req.params.id;
   const { userId } = req.body;
@@ -115,3 +112,16 @@ module.exports.voteForEvent = (req, res) => {
       });
     })
 };
+
+// Ruta para obtener los eventos de un usuario específico
+module.exports.getUserCreatedEvents = (req, res) => {
+  const {userId} = req.params 
+  Events.find({ createdBy: userId })
+      .then((eventCreatedBy) => {
+          return res.status(200).json(eventCreatedBy);
+      })
+      .catch((error) => {
+          return res.status(400).json({ message: "Error al obtener el evento", error });
+      });
+};
+

@@ -20,6 +20,11 @@ const userSchema = mongoose.Schema({
         type: String,
         required: [true, 'Por favor proporciona el password.']
     },
+    createdEvents: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'events'
+    } 
+    ]
     
 },
 {timestamps: true});
