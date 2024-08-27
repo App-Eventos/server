@@ -49,6 +49,11 @@ const eventSchema  = mongoose.Schema({
     type: Number,
     default: 0, 
   },
+  createdBy: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'userRegister',
+    required: true 
+},
 }, { timestamps: true });
 
 const Events = mongoose.model('events', eventSchema)
