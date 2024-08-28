@@ -20,8 +20,12 @@ const userSchema = mongoose.Schema({
         type: String,
         required: [true, 'Por favor proporciona el password.']
     },
+    createdEvents: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'events'
+    } 
+    ],
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'events' }], //campo para la guardar los datos de mis de mis favoritos
-    // createdEvents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'events' }] // Campo para los eventos creados
 },
 {timestamps: true});
 

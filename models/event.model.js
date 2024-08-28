@@ -45,15 +45,24 @@ const eventSchema  = mongoose.Schema({
   imageUrl: { 
     type: String 
   },
-  votes: {
-    type: Number,
-    default: 0, 
+  status: {
+    type: String,
+    default: 'activo', 
   },
   createdBy: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'userRegister',
     required: true 
-},
+  },
+  votes: {
+    type: Number,
+    default: 0, 
+  },
+  voters:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'userRegister'
+  } 
+  ]
 }, { timestamps: true });
 
 const Events = mongoose.model('events', eventSchema)

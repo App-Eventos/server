@@ -1,29 +1,30 @@
 const Events = require('../models/event.model'); 
-const UserRegistration = require('../models/userModel')
+const UserRegistration = require('./../models/userModel')
 
 //Crear un nuevo evento
 module.exports.createEvent = (req, res) => { 
   const eventData = {
     ...req.body,
-    imageUrl: req.file ? `${req.file.filename}` : null, 
-    createdBy: req.infoUser._id // Establece el creador del evento
+    imageUrl: req.file ? `${req.file.filename}` : null,
   };
 
   Events.create(eventData)
     .then((newEvent) => {
-             // Agregar el ID del evento creado al array de createdEvents del usuario
-             return UserRegistration.findByIdAndUpdate(
-              req.infoUser._id,
-              { $push: { createdEvents: newEvent._id } },
-              { new: true }
-          );
-      })
-      .then(() => {
-          return res.status(201).json({ message: "Evento creado y agregado a tu lista de eventos." });
-      })
-      .catch((error) => {
-          return res.status(400).json({ message: "Error al crear el evento", error });
-      });
+      // Agregar el ID del evento creado al array de createdEvents del usuario
+      const userId = req.body.createdBy
+      console.log(userId)
+      return UserRegistration.findByIdAndUpdate(
+        userId,
+        { $push: { createdEvents: newEvent._id } },
+        { new: true }
+      );
+    })
+    .then((newEvent) => {
+      return res.status(201).json(newEvent);
+    })
+    .catch((error) => {
+      return res.status(400).json({ message: "Error al crear el evento", error });
+    });
 };
 
 // Obtener todos los eventos 
@@ -62,10 +63,15 @@ module.exports.deleteEvent = (req, res) =>{
 
 //Actualizar evento
 module.exports.updateEvent = (req, res) =>{
+  
+  console.log('req.body:', req.body); 
+  console.log('req.file:', req.file);
+  
   const updateData = {
     ...req.body,
-    imageUrl: req.file ? req.file.filename : req.body.image, 
+    imageUrl: req.file ? `${req.file.filename}` : null,
   };
+  console.log(updateData)
 
   Events.findByIdAndUpdate({_id: req.params.id}, updateData, {new: true, runValidators: true})
     .then((updatedEvent)=>{
@@ -77,33 +83,44 @@ module.exports.updateEvent = (req, res) =>{
     })
 };
 
-// En el controlador
+// // Guardar el voto
 module.exports.voteForEvent = (req, res) => {
   const eventId = req.params.id;
-  
-  Events.findByIdAndUpdate(
-    eventId,
-    { $inc: { votes: 1 } },
-    { new: true }
-  )
-  .then((updatedEvent) => {
-    return res.status(200).json(updatedEvent);
-  })
-  .catch((error) => {
-    return res.status(400).json({ message: "Error al votar por el evento", error });
-  });
+  const { userId } = req.body;
+
+  Events.findById(eventId)
+    .then(event => {
+      if (!event) {
+        return res.status(404).json({ message: 'Evento no encontrado' });
+      }
+
+      if (event.voters.includes(userId)) {
+        return res.status(400).json({ message: 'Ya has votado por este evento' });
+      }
+
+      return Events.findByIdAndUpdate(
+        eventId,
+        { $inc: { votes: 1 }, $push: { voters: userId } },
+        { new: true }
+      )
+      .then(updatedEvent => {
+        res.status(200).json(updatedEvent);
+      })
+      .catch(error => {
+        console.error('Error al votar por el evento:', error);
+        res.status(400).json({ message: 'Error al votar por el evento', error });
+      });
+    })
 };
 
-
-// // Controlador para obtener eventos creados por el usuario
-// module.exports.getUserCreatedEvents = (req, res) => {
-//   UserRegistration.findById(req.infoUser._id)
-//       .populate('createdEvents') // Para obtener los detalles de los eventos creados
-//       .then(user => {
-//           if (!user) return res.status(404).json({ message: "Usuario no encontrado." });
-//           res.status(200).json(user.createdEvents);
-//       })
-//       .catch((error) => {
-//           return res.status(400).json({ message: "Error al obtener eventos creados", error });
-//       });
-// };
+// Ruta para obtener los eventos de un usuario específico
+module.exports.getUserCreatedEvents = (req, res) => {
+  const {userId} = req.params 
+  Events.find({ createdBy: userId })
+      .then((eventCreatedBy) => {
+          return res.status(200).json(eventCreatedBy);
+      })
+      .catch((error) => {
+          return res.status(400).json({ message: "Error al obtener el evento", error });
+      });
+};
