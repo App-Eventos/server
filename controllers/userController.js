@@ -72,6 +72,10 @@ module.exports.login = (req, res) => {
 module.exports.addToFavorites = (req, res) => {
     const { eventId } = req.body;
     
+    // Validate eventId
+    if (!eventId) {
+        return res.status(400).json({ message: "Event ID is required." });
+    }
     UserRegistration.findById(req.infoUser._id) // Usar el ID del usuario desde el token
     .then(user => {
       if (!user) {

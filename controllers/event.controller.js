@@ -64,13 +64,14 @@ module.exports.deleteEvent = (req, res) =>{
 //Actualizar evento
 module.exports.updateEvent = (req, res) =>{
   
-  console.log('req.body:', req.body); 
-  console.log('req.file:', req.file);
-  
+  //Cambie estas lineas 
   const updateData = {
     ...req.body,
-    imageUrl: req.file ? `${req.file.filename}` : null,
   };
+  //para que se recargue con la nueva imagen
+  if (req.file) {
+    updateData.imageUrl = `${req.file.filename}`;
+  }
   console.log(updateData)
 
   Events.findByIdAndUpdate({_id: req.params.id}, updateData, {new: true, runValidators: true})
